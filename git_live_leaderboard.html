@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏁 Git Race 2025 - Live Leaderboard</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Setup Screen */
+        .setup-screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .setup-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 50px;
+            max-width: 600px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .setup-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(90deg, #00f5ff, #ff00e5, #00f5ff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #a0a0ff;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #00f5ff;
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #00f5ff, #00a8ff);
+            color: #0a0a1a;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 20px;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 245, 255, 0.4);
+        }
+
+        .start-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Game Screen */
+        .game-screen {
+            display: none;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            position: relative;
+        }
+
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #00f5ff, #ff00e5, #ffff00, #00f5ff);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 4s linear infinite;
+            text-shadow: 0 0 40px rgba(0, 245, 255, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #888;
+            margin-top: 10px;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: #00f5ff;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 5px;
+        }
+
+        .leaderboard {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .leaderboard-header {
+            display: grid;
+            grid-template-columns: 80px 1fr 200px 150px;
+            padding: 15px 20px;
+            color: #888;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .player-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 200px 150px;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            align-items: center;
+        }
+
+        .player-row:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .player-row.new-entry {
+            animation: slideIn 0.5s ease, glow 1s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes glow {
+
+            0%,
+            100% {
+                background: transparent;
+            }
+
+            50% {
+                background: rgba(0, 245, 255, 0.2);
+            }
+        }
+
+        .rank {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .rank-1 {
+            color: #ffd700;
+        }
+
+        .rank-2 {
+            color: #c0c0c0;
+        }
+
+        .rank-3 {
+            color: #cd7f32;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .player-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .player-username {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .merge-time {
+            font-family: 'Orbitron', sans-serif;
+            color: #00f5ff;
+        }
+
+        .pr-link {
+            color: #a0a0ff;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .pr-link:hover {
+            color: #00f5ff;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            color: #666;
+        }
+
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .waiting-text {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .waiting-subtext {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Confetti */
+        #confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: fall 3s ease-out forwards;
+        }
+
+        @keyframes fall {
+            0% {
+                top: -10px;
+                opacity: 1;
+                transform: rotate(0deg);
+            }
+
+            100% {
+                top: 100vh;
+                opacity: 0;
+                transform: rotate(720deg);
+            }
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #00f5ff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background: rgba(0, 245, 255, 0.1);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .status-bar.error {
+            background: rgba(255, 60, 60, 0.2);
+            color: #ff6b6b;
+        }
+
+        .status-bar.success {
+            background: rgba(0, 255, 100, 0.1);
+            color: #00ff64;
+        }
+
+        /* Trophy animation for top 3 */
+        .trophy {
+            font-size: 1.5rem;
+            margin-left: 10px;
+        }
+
+        .refresh-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        /* Instructions panel */
+        .instructions-panel {
+            background: linear-gradient(135deg, rgba(255, 0, 229, 0.1), rgba(0, 245, 255, 0.1));
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .instructions-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ff00e5;
+        }
+
+        .instruction-step {
+            display: flex;
+            align-items: flex-start;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+        }
+
+        .step-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00f5ff;
+            margin-right: 20px;
+            min-width: 40px;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content code {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #00f5ff;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: #00f5ff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: #ff00e5;
+        }
+
+        .footer .credits {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .footer .heart {
+            color: #ff00e5;
+            animation: heartbeat 1.5s ease infinite;
+        }
+
+        @keyframes heartbeat {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="confetti-container"></div>
+
+    <!-- Setup Screen -->
+    <div class="setup-screen" id="setupScreen">
+        <div class="setup-card">
+            <h1 class="setup-title">🏁 Git Race 2025</h1>
+
+            <div class="input-group">
+                <label>Repository (owner/repo)</label>
+                <input type="text" id="repoInput" value="hovahyii/git-race-2025"
+                    placeholder="e.g., hovahyii/git-race-2025">
+            </div>
+
+            <div class="input-group">
+                <label>GitHub Token (optional - for higher rate limits)</label>
+                <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxx">
+            </div>
+
+            <button class="start-btn" id="startBtn" onclick="startGame()">
+                🚀 START GAME
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div class="game-screen" id="gameScreen">
+        <div class="container">
+            <header class="header">
+                <h1 class="title">🏁 GIT RACE 2025</h1>
+                <p class="subtitle" id="repoName">hovahyii/git-race-2025</p>
+            </header>
+
+            <div class="status-bar" id="statusBar">
+                <span class="spinner"></span>
+                <span id="statusText">Connecting to GitHub...</span>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalMerged">0</div>
+                    <div class="stat-label">PRs Merged</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalPending">0</div>
+                    <div class="stat-label">Pending PRs</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="gameTime">00:00</div>
+                    <div class="stat-label">Game Time</div>
+                </div>
+            </div>
+
+            <!-- Instructions Panel -->
+            <div class="instructions-panel" id="instructionsPanel">
+                <h2 class="instructions-title">⚠️ ATTENTION CLASS: THE RACE IS ON! ⚠️</h2>
+                <p style="margin-bottom: 20px; color: #ccc;">Since this is a Public Repo, you cannot push directly. Use
+                    the <strong>Open Source Workflow</strong>:</p>
+
+                <div class="instruction-step">
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <strong>FORK</strong> my repo: <code>github.com/hovahyii/git-race-2025</code> (Click 'Fork' in
+                        top right)
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <strong>CLONE</strong> <em>YOUR</em> fork:
+                        <code>git clone https://github.com/[YOUR-USERNAME]/git-race-2025.git</code>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <strong>EDIT</strong> <code>guestbook.md</code>: Add your name to the list
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <span class="step-number">4</span>
+                    <div class="step-content">
+                        <strong>COMMIT & PUSH</strong> to your fork:
+                        <code>git add . && git commit -m "Add my name" && git push</code>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <span class="step-number">5</span>
+                    <div class="step-content">
+                        <strong>OPEN A PULL REQUEST (PR)</strong> on GitHub to send your name to the leaderboard!
+                    </div>
+                </div>
+            </div>
+
+            <div class="leaderboard">
+                <div class="leaderboard-header">
+                    <span>Rank</span>
+                    <span>Contributor</span>
+                    <span>Merged At</span>
+                    <span>PR #</span>
+                </div>
+                <div id="leaderboardBody">
+                    <div class="empty-state">
+                        <div class="icon pulse">🏎️</div>
+                        <div class="waiting-text">Waiting for racers...</div>
+                        <div class="waiting-subtext">Merged PRs will appear here in real-time!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="refresh-indicator" id="refreshIndicator">
+            Auto-refresh: <span id="countdown">10</span>s
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="credits">
+                <span>Prompted by</span>
+                <a href="https://github.com/hovahyii" target="_blank">Hovah Yii</a>
+                <span class="heart">❤️</span>
+                <span>Made possible with</span>
+                <a href="https://www.anthropic.com" target="_blank">Claude Opus 4.5</a>
+                <span>&</span>
+                <span
+                    style="background: linear-gradient(90deg, #00f5ff, #ff00e5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 600;">Antigravity</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        let config = {
+            owner: 'hovahyii',
+            repo: 'git-race-2025',
+            token: ''
+        };
+
+        let gameStartTime = null;
+        let seenPRs = new Set();
+        let refreshInterval = null;
+        let countdownInterval = null;
+        let countdown = 10;
+
+        function startGame() {
+            const repoInput = document.getElementById('repoInput').value.trim();
+            const tokenInput = document.getElementById('tokenInput').value.trim();
+
+            if (repoInput) {
+                const parts = repoInput.split('/');
+                if (parts.length === 2) {
+                    config.owner = parts[0];
+                    config.repo = parts[1];
+                }
+            }
+
+            if (tokenInput) {
+                config.token = tokenInput;
+            }
+
+            document.getElementById('setupScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            document.getElementById('repoName').textContent = `${config.owner}/${config.repo}`;
+
+            gameStartTime = new Date();
+
+            // Start the game
+            fetchPullRequests();
+            refreshInterval = setInterval(fetchPullRequests, 10000); // Refresh every 10 seconds
+
+            // Update game time
+            setInterval(updateGameTime, 1000);
+
+            // Countdown display
+            countdownInterval = setInterval(() => {
+                countdown--;
+                if (countdown <= 0) countdown = 10;
+                document.getElementById('countdown').textContent = countdown;
+            }, 1000);
+        }
+
+        function updateGameTime() {
+            if (!gameStartTime) return;
+            const now = new Date();
+            const diff = Math.floor((now - gameStartTime) / 1000);
+            const minutes = Math.floor(diff / 60).toString().padStart(2, '0');
+            const seconds = (diff % 60).toString().padStart(2, '0');
+            document.getElementById('gameTime').textContent = `${minutes}:${seconds}`;
+        }
+
+        async function fetchPullRequests() {
+            const statusBar = document.getElementById('statusBar');
+            const statusText = document.getElementById('statusText');
+
+            statusBar.className = 'status-bar';
+            statusText.innerHTML = '<span class="spinner"></span> Fetching pull requests...';
+
+            try {
+                const headers = {
+                    'Accept': 'application/vnd.github.v3+json'
+                };
+
+                if (config.token) {
+                    headers['Authorization'] = `token ${config.token}`;
+                }
+
+                // Fetch merged PRs
+                const mergedResponse = await fetch(
+                    `https://api.github.com/repos/${config.owner}/${config.repo}/pulls?state=closed&sort=updated&direction=desc&per_page=100`,
+                    { headers }
+                );
+
+                if (!mergedResponse.ok) {
+                    throw new Error(`GitHub API error: ${mergedResponse.status}`);
+                }
+
+                const allClosedPRs = await mergedResponse.json();
+                const mergedPRs = allClosedPRs.filter(pr => pr.merged_at !== null);
+
+                // Fetch open PRs for pending count
+                const openResponse = await fetch(
+                    `https://api.github.com/repos/${config.owner}/${config.repo}/pulls?state=open&per_page=100`,
+                    { headers }
+                );
+
+                const openPRs = await openResponse.json();
+
+                // Update stats
+                document.getElementById('totalMerged').textContent = mergedPRs.length;
+                document.getElementById('totalPending').textContent = openPRs.length;
+
+                // Update leaderboard
+                updateLeaderboard(mergedPRs);
+
+                statusBar.className = 'status-bar success';
+                statusText.textContent = `✓ Live - Last updated: ${new Date().toLocaleTimeString()}`;
+                countdown = 10;
+
+            } catch (error) {
+                console.error('Error fetching PRs:', error);
+                statusBar.className = 'status-bar error';
+                statusText.textContent = `⚠ Error: ${error.message}. Retrying...`;
+            }
+        }
+
+        function updateLeaderboard(mergedPRs) {
+            const leaderboardBody = document.getElementById('leaderboardBody');
+
+            if (mergedPRs.length === 0) {
+                leaderboardBody.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon pulse">🏎️</div>
+                        <div class="waiting-text">Waiting for racers...</div>
+                        <div class="waiting-subtext">Merged PRs will appear here in real-time!</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by merge time (earliest first = winner)
+            const sortedPRs = mergedPRs.sort((a, b) =>
+                new Date(a.merged_at) - new Date(b.merged_at)
+            );
+
+            let html = '';
+
+            sortedPRs.forEach((pr, index) => {
+                const rank = index + 1;
+                const isNew = !seenPRs.has(pr.id);
+                const mergeTime = new Date(pr.merged_at).toLocaleTimeString();
+
+                let rankClass = '';
+                let trophy = '';
+
+                if (rank === 1) {
+                    rankClass = 'rank-1';
+                    trophy = '🥇';
+                } else if (rank === 2) {
+                    rankClass = 'rank-2';
+                    trophy = '🥈';
+                } else if (rank === 3) {
+                    rankClass = 'rank-3';
+                    trophy = '🥉';
+                }
+
+                html += `
+                    <div class="player-row ${isNew ? 'new-entry' : ''}">
+                        <div class="rank ${rankClass}">#${rank}</div>
+                        <div class="player-info">
+                            <img class="avatar" src="${pr.user.avatar_url}" alt="${pr.user.login}">
+                            <div>
+                                <div class="player-name">${pr.user.login} ${trophy}</div>
+                                <div class="player-username">${pr.title}</div>
+                            </div>
+                        </div>
+                        <div class="merge-time">${mergeTime}</div>
+                        <a class="pr-link" href="${pr.html_url}" target="_blank">PR #${pr.number} →</a>
+                    </div>
+                `;
+
+                if (isNew && seenPRs.size > 0) {
+                    // Trigger confetti for new entries
+                    triggerConfetti();
+                }
+
+                seenPRs.add(pr.id);
+            });
+
+            leaderboardBody.innerHTML = html;
+        }
+
+        function triggerConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#ff00e5', '#00f5ff', '#ffff00', '#00ff00', '#ff6b6b', '#ffd700'];
+
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+
+                // Random shapes
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
+                }
+
+                container.appendChild(confetti);
+
+                setTimeout(() => confetti.remove(), 4000);
+            }
+        }
+    </script>
+</body>
+
+</html>
